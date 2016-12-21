@@ -12,35 +12,3 @@ html {
 *, ::before, ::after {
 	box-sizing: inherit;
 }
-
-form {
-	margin-left: 1em;
-}
-
-#map {
-	height: 90%;
-	margin-top: 5%;
-}
-
-main {
-	width: 50%;
-	padding-right: 0.5em;
-}
-
-aside {
-	position: fixed;
-	right: 0;
-	top: 1em;
-	width: 50%;
-	height: 100%;
-	padding-left: 0.5em;
-}
-
-#resultTable tbody tr.highlight {
-	background-color: #d0e5f5;
-}
-
-#resultTable tbody tr td p {
-	margin-top: 0;
-	margin-bottom: 0;
-}

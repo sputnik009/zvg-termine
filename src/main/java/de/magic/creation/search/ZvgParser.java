@@ -1,10 +1,11 @@
 package de.magic.creation.search;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.gargoylesoftware.htmlunit.html.AbstractDomNodeList;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.DomNodeList;
@@ -33,16 +33,18 @@ public class ZvgParser
   public ZvgObjectDetail parseDetail( HtmlPage result)
   {
     DomElement table = result.getElementById( "anzeige");
-    DomNodeList<HtmlElement> rows = table.getElementsByTagName( "tr");
+    DomElement tbody = table.getFirstElementChild();
+    List<HtmlElement> rows = getChildsByTagName( tbody, "tr");
     Map<String, HtmlElement> attrToVal =
-      rows.stream().collect( Collectors.toMap( this::htmlToKeyName, this::htmlToValueNode));
+      rows.stream().filter( e -> htmlToKeyName( e) != null && htmlToValueNode( e) != null)
+        .collect( Collectors.toMap( this::htmlToKeyName, this::htmlToValueNode));
 
     ZvgObjectDetail detail = new ZvgObjectDetail();
 
     HtmlElement elm = attrToVal.get( "Grundbuch");
     if( elm != null)
     {
-      detail.setGrundbuch( elm.asText().trim());
+      detail.setGrundbuch( innerHtml( elm));
     }
 
     elm = attrToVal.get( "Beschreibung");
@@ -51,12 +53,27 @@ public class ZvgParser
       detail.setBeschreibung( elm.asText().trim());
     }
 
-    elm = attrToVal.get( "Ort der Versteigerung");
+    elm = attrToVal.get( "Ort");
     if( elm != null)
     {
       detail.setOrtVersteigerung( elm.asText().trim());
     }
     return detail;
+  }
+
+  private String innerHtml( HtmlElement elm)
+  {
+    final StringWriter stringWriter = new StringWriter();
+    try (final PrintWriter printWriter = new PrintWriter( stringWriter))
+    {
+      DomNode child = elm.getFirstChild();
+      while( child != null)
+      {
+        printWriter.print( child.asXml());
+        child = child.getNextSibling();
+      }
+    }
+    return stringWriter.toString();
   }
 
   public List<ZvgObject> parseSearchResults( HtmlPage result)
@@ -119,9 +136,11 @@ public class ZvgParser
     {
       List<NameValuePair> paramsList = URLEncodedUtils.parse( new URI( link), "UTF-8");
       //index.php?button=showZvg&amp;zvg_id=29218&amp;land_abk=sn
-      String zvg_id = paramsList.stream().filter( nvp -> "zvg_id".equals( nvp.getName())).map( nvp -> nvp.getValue()).findFirst().orElse( null);
-      String landAbk = paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue()).findFirst().orElse( null);
-      
+      String zvg_id = paramsList.stream().filter( nvp -> "zvg_id".equals( nvp.getName())).map( nvp -> nvp.getValue())
+        .findFirst().orElse( null);
+      String landAbk = paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue())
+        .findFirst().orElse( null);
+
       obj.setId( zvg_id);
       obj.setLandAbk( landAbk);
     } catch( URISyntaxException e)
@@ -189,7 +208,7 @@ public class ZvgParser
     DomNodeList<HtmlElement> tds = elm.getElementsByTagName( "td");
     if( tds.size() > 0)
     {
-      String[] names = tds.get( 0).asText().trim().split( " ");
+      String[] names = tds.get( 0).asText().trim().split( " |:");
       return names[0];
     }
 
@@ -242,23 +261,15 @@ public class ZvgParser
 
     return finalList;
   }
-  
-  <E extends HtmlElement> List<E> getChildsByTagName(final String tagName) {
-    
-    
-    
-    return new AbstractDomNodeList<E>(this) {
-        @Override
-        @SuppressWarnings("unchecked")
-        protected List<E> provideElements() {
-            final List<E> res = new LinkedList<>();
-            for (final HtmlElement elem : getDomNode().getHtmlElementDescendants()) {
-                if (elem.getLocalName().equalsIgnoreCase(tagName)) {
-                    res.add((E) elem);
-                }
-            }
-            return res;
-        }
-    };
-}
+
+  private List<HtmlElement> getChildsByTagName( DomElement domElement, final String tagName)
+  {
+    Stream<DomElement> stream = StreamSupport.stream( domElement.getChildElements().spliterator(), false);
+
+    return stream
+      .filter( elem -> elem.getLocalName().equalsIgnoreCase( tagName))
+      .filter( elem -> elem instanceof HtmlElement)
+      .map( elem -> (HtmlElement) elem)
+      .collect( Collectors.toList());
+  }
 }

@@ -1,0 +1,29 @@
+@CHARSET "UTF-8";
+
+form {
+	margin-left: 1em;
+}
+
+#map {
+	height: 80%;
+	margin-top: 10%;
+}
+
+main {
+	width: 65%;
+	padding-right: 0.5em;
+}
+
+aside {
+	position: fixed;
+	right: 0;
+	top: 1em;
+	width: 35%;
+	height: 100%;
+	padding-left: 0.5em;
+}
+
+section p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
