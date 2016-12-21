@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Zvg: An user friendly version</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta charset="utf-8" />
+	<script src="webjars/jquery/3.1.1-1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+	<script src="https://cdn.datatables.net/1.10.13/js/dataTables.jqueryui.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css" />
+	<!--  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" />  -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+	<link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body>
+	<header>
+		<h1>Zvg: An user friendly version</h1>
+	</header>
+	<main>
+		<table id="resultTable">
+			<thead>
+				<tr>
+					<th>Aktenzeichen</th>
+					<th>Objekt/Lage</th>
+					<th>Wert</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="obj : ${objects}" th:attr="latitude=${obj.location.latitude},longitude=${obj.location.longitude}">
+					<td><a th:href="@{/details/{id}(id=${obj.id})}" th:text="${obj.aktenzeichen}"></a></td>
+					<td>
+						<p th:text="${obj.objekt}">Objekt</p>
+						<p th:text="${obj.lage}">Lage</p>
+					</td>
+					<td th:text="${#numbers.formatDecimal(obj.verkerhswert, 0, 'POINT', 0, 'COMMA')}">wert</td>
+				</tr>
+			</tbody>
+		</table>
+	</main>
+	<aside>
+		<div id="map"></div>
+	</aside>
+	<script th:src="@{/js/searchResult.js}"></script>
+</body>
+</html>

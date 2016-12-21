@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Zvg: An user friendly version</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<script src="webjars/jquery/3.1.1-1/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css" />
+	<link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body>
+	<h1>Zvg: An user friendly version</h1>
+	<h2>Ihre Suche</h2>
+	<form action="#" th:action="@{/search}" th:object="${searchSettings}" method="post">
+		<p class="ui-widget">Stadt: <input type="text" th:field="*{city}" class="ui-widget-content ui-corner-all" /></p>
+		<div class="controlgroup">
+			<th:block th:each="kind : ${allKinds}">
+				<input type="checkbox" th:field="*{kinds}" th:value="${kind}" />
+				<label th:for="${#ids.prev('kinds')}" th:text="${kind.label}">Label</label>
+			</th:block>
+		</div>
+		<p>
+			<input class="button" type="submit" value="Submit" /> 
+			<input class="button" type="reset" value="Reset" />
+		</p>
+	</form>
+<script>
+$( ".button" ).button();
+$( "#button-icon" ).button({
+	icon: "ui-icon-gear",
+	showLabel: false
+});
+$( ".controlgroup" ).controlgroup({direction: "vertical"});
+$( "#tooltip" ).tooltip();
+</script>
+</body>
+</html>
