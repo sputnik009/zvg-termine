@@ -32,6 +32,8 @@ public class DetailsController
 
     model.addAttribute( "zvgObj", zvgObject);
     model.addAttribute( "zvgDet", zvgDetail);
+    model.addAttribute( "latitude", zvgObject.getLocation().getLatitude());
+    model.addAttribute( "longitude", zvgObject.getLocation().getLongitude());
 
     return "details";
   }

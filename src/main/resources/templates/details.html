@@ -1,51 +1,51 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Zvg: An user friendly version</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta charset="utf-8" />
-	<script src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css" />
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-	<link rel="stylesheet" th:href="@{/css/main.css}" />
-	<link rel="stylesheet" th:href="@{/css/details.css}" />
+<title>Zvg: An user friendly version</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8" />
+<script src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+<link rel="stylesheet" th:href="@{/css/main.css}" />
+<link rel="stylesheet" th:href="@{/css/details.css}" />
 </head>
 <body>
-	<header>
-		<h1>Zvg: An user friendly version</h1>
-	</header>
-	<main th:attr="latitude=${zvgObj.location.latitude},longitude=${zvgObj.location.longitude}">
-		<section>
-			<h2 th:text="${zvgObj.aktenzeichen}">Aktenzeichen</h2>
-			<p th:text="${zvgObj.objekt}"></p>
-			<p th:text="${zvgObj.lage}"></p>
-		</section>
-		<section>
-			<h2>Beschreibung</h2>
-			<p th:text="${zvgDet.beschreibung}"></p>
-		</section>
-		<section>
-			<h2>Grundbuch</h2>
-			<p th:remove="tag" th:utext="${zvgDet.grundbuch}"></p>
-		</section>
-	</main>
-	<aside>
-		<div id="map"></div>
-	</aside>
-<script>
+  <header>
+    <h1>Zvg: An user friendly version</h1>
+  </header>
+  <main>
+  <section>
+    <h2 th:text="${zvgObj.aktenzeichen}">Aktenzeichen</h2>
+    <p th:text="${zvgObj.objekt}"></p>
+    <p th:text="${zvgObj.lage}"></p>
+  </section>
+  <section>
+    <h2>Beschreibung</h2>
+    <p th:text="${zvgDet.beschreibung}"></p>
+  </section>
+  <section>
+    <h2>Grundbuch</h2>
+    <p th:remove="tag" th:utext="${zvgDet.grundbuch}"></p>
+  </section>
+  </main>
+  <aside>
+    <div id="map"></div>
+  </aside>
+  <script th:inline="javascript">
 var myMap = L.map('map');
 //create the tile layer with correct attribution
 var osmUrl = 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png';
 var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
 var osm = new L.TileLayer(osmUrl, { minZoom : 8, maxZoom : 18, attribution : osmAttrib});
 
-myMap.setView([ 51.3391827, 12.3810549 ], 12);
-myMap.addLayer(osm);
+var lat = [[${latitude}]];
+var lon = [[${longitude}]];
 
-var lat = $("main").first().attr("latitude");
-var lon = $("main").first().attr("longitude");
+myMap.setView([ lat, lon ], 15);
+myMap.addLayer(osm);
 
 var circle = new L.circleMarker([ lat, lon ], {
 	color : '#2e6e9e',

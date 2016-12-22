@@ -31,3 +31,8 @@ aside {
 	margin-top: 0;
 	margin-bottom: 0;
 }
+
+.leaflet-tooltip-pane p {
+	margin-top: 0;
+	margin-bottom: 0;
+}
