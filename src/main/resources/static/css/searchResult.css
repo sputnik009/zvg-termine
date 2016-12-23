@@ -17,9 +17,9 @@ main {
 aside {
 	position: fixed;
 	right: 0;
-	top: 1em;
+	top: 6em;
 	width: 50%;
-	height: 100%;
+	height: 90%;
 	padding-left: 0.5em;
 }
 

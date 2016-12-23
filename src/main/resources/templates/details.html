@@ -1,47 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="base :: common_header(~{::title},~{::link},~{::script})">
   <title>Zvg: An user friendly version</title>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>  
   <!-- Leaflet -->
   <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
   
   <link rel="stylesheet" th:href="@{/css/details.css}" />
 </head>
-<body class="container">
-  <header>
-    <h1>Zvg: An user friendly version</h1>
+<body>
+  <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">ZVG</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a th:href="@{/home}">Home</a></li>
+      <li><a th:href="@{/search}">Search</a></li>
+      <li class="active"><a href="#">Detail</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+  </div>
+  </nav>
+  <header class="text-center">
+    <h2>Zvg: An user friendly version</h2>
   </header>
+  <div class="container">
   <main>
-  <section>
-    <h2 th:text="${zvgObj.aktenzeichen}">Aktenzeichen</h2>
-    <p th:text="${zvgObj.objekt}"></p>
-    <p th:text="${zvgObj.lage}"></p>
-  </section>
-  <section>
-    <h2>Beschreibung</h2>
-    <p th:text="${zvgDet.beschreibung}"></p>
-  </section>
-  <section>
-    <h2>Preis</h2>
-    <p><span th:text="${#numbers.formatDecimal(zvgObj.verkerhswert, 0, 'DEFAULT', 0, 'DEFAULT')}">120.000</span> €</p>
-  </section>
-  <section>
-    <h2>Grundbuch</h2>
-    <p th:remove="tag" th:utext="${zvgDet.grundbuch}"></p>
-  </section>
+    <section>
+      <h2 th:text="${zvgObj.aktenzeichen}">Aktenzeichen</h2>
+      <p th:text="${zvgObj.objekt}"></p>
+      <p th:text="${zvgObj.lage}"></p>
+    </section>
+    <section>
+      <h2>Beschreibung</h2>
+      <p th:text="${zvgDet.beschreibung}"></p>
+    </section>
+    <section>
+      <h2>Preis</h2>
+      <p><span th:text="${#numbers.formatDecimal(zvgObj.verkerhswert, 0, 'DEFAULT', 0, 'DEFAULT')}">120.000</span> €</p>
+    </section>
+    <section>
+      <h2>Grundbuch</h2>
+      <p th:remove="tag" th:utext="${zvgDet.grundbuch}"></p>
+    </section>
   </main>
   <aside>
     <div id="map"></div>
   </aside>
+  </div>
   <script th:inline="javascript">
 var myMap = L.map('map');
 //create the tile layer with correct attribution
@@ -52,7 +59,7 @@ var osm = new L.TileLayer(osmUrl, { minZoom : 8, maxZoom : 18, attribution : osm
 var lat = [[${latitude}]];
 var lon = [[${longitude}]];
 
-myMap.setView([ lat, lon ], 15);
+myMap.setView([ lat, lon ], 14);
 myMap.addLayer(osm);
 
 var circle = new L.circleMarker([ lat, lon ], {
