@@ -132,6 +132,11 @@ public class ZvgParser
 
   private void parseZvgId( String link, ZvgObject obj)
   {
+    if( link == null) 
+    {
+      log.error( "link is null!");
+      return;
+    }
     try
     {
       List<NameValuePair> paramsList = URLEncodedUtils.parse( new URI( link), "UTF-8");

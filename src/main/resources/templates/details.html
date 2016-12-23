@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-<title>Zvg: An user friendly version</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta charset="utf-8" />
-<script src="/webjars/jquery/3.1.1-1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-<link rel="stylesheet" th:href="@{/css/main.css}" />
-<link rel="stylesheet" th:href="@{/css/details.css}" />
+  <title>Zvg: An user friendly version</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>  
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+  
+  <link rel="stylesheet" th:href="@{/css/details.css}" />
 </head>
-<body>
+<body class="container">
   <header>
     <h1>Zvg: An user friendly version</h1>
   </header>
@@ -25,6 +29,10 @@
   <section>
     <h2>Beschreibung</h2>
     <p th:text="${zvgDet.beschreibung}"></p>
+  </section>
+  <section>
+    <h2>Preis</h2>
+    <p><span th:text="${#numbers.formatDecimal(zvgObj.verkerhswert, 0, 'DEFAULT', 0, 'DEFAULT')}">120.000</span> €</p>
   </section>
   <section>
     <h2>Grundbuch</h2>

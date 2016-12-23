@@ -1,26 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Zvg: An user friendly version</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta charset="utf-8" />
-	<script src="webjars/jquery/3.1.1-1/jquery.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-	<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/1.10.13/js/dataTables.jqueryui.min.js"></script>
-	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.css" />
-	<!--  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" />  -->
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-	<link rel="stylesheet" th:href="@{/css/main.css}" />
-	<link rel="stylesheet" th:href="@{/css/searchResult.css}" />
+  <title>Zvg: An user friendly version</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!-- jquery.dataTables -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.13/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.13/datatables.min.js"></script>
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+  
+  <link rel="stylesheet" th:href="@{/css/searchResult.css}" />
 </head>
-<body>
+<body class="container">
 	<header>
 		<h1>Zvg: An user friendly version</h1>
 	</header>
 	<main>
-		<table id="resultTable">
+		<table id="resultTable" class="table table-striped table-bordered">
 			<thead>
 				<tr>
 					<th>Aktenzeichen</th>
@@ -43,6 +47,7 @@
 	<aside>
 		<div id="map"></div>
 	</aside>
-	<script th:src="@{/js/searchResult.js}"></script>
+
+	<script th:src="@{/js/searchResult.js}"></script>  
 </body>
 </html>
