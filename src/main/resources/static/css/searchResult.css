@@ -1,26 +1,24 @@
 @CHARSET "UTF-8";
 
-form {
-	margin-left: 1em;
-}
-
 #map {
-	height: 90%;
-	margin-top: 5%;
+	height: 80%;
+	width: 48%;
+	position: fixed;
 }
 
 main {
-	width: 50%;
-	padding-right: 0.5em;
+	
 }
 
 aside {
-	position: fixed;
-	right: 0;
-	top: 6em;
-	width: 50%;
-	height: 90%;
-	padding-left: 0.5em;
+
+}
+
+.row-eq-height {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
 }
 
 #resultTable tbody tr.highlight {
