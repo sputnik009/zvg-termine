@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,38 +17,43 @@ import org.springframework.stereotype.Service;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
 import de.magic.creation.home.SearchSettings;
+import de.magic.creation.repo.IZvgObjectRepository;
+import de.magic.creation.repo.NominatimCacheEntry;
+import de.magic.creation.repo.ZvgObject;
+import de.magic.creation.repo.ZvgObjectDetail;
 
 @Service
 @CacheConfig(cacheNames = "searchs")
 public class SearchManager
 {
-  private final Logger           log = LoggerFactory.getLogger( SearchManager.class);
+  private final Logger         log = LoggerFactory.getLogger( SearchManager.class);
 
-  private ZvgWebClient           zvg;
+  private ZvgWebClient         zvgWebClient;
 
-  private NominatimManager       nominatimManager;
+  private NominatimManager     nominatimManager;
 
-  private Map<String, ZvgObject> data;
+  private IZvgObjectRepository zvgObjectRepository;
 
   @Autowired
-  public SearchManager( ZvgWebClient zvg, NominatimManager nominatimManager)
+  public SearchManager( ZvgWebClient zvgWebClient, NominatimManager nominatimManager,
+    IZvgObjectRepository zvgObjectRepository)
   {
-    this.zvg = zvg;
+    this.zvgWebClient = zvgWebClient;
     this.nominatimManager = nominatimManager;
-    this.data = new ConcurrentHashMap<>();
+    this.zvgObjectRepository = zvgObjectRepository;
   }
 
-  public ZvgObject getObject( String id)
+  public ZvgObject getObject( Long id)
   {
-    return data.get( id);
+    return zvgObjectRepository.findOne( id);
   }
 
   @Cacheable()
-  public ZvgObjectDetail details( String zvgId, String landAbk)
+  public ZvgObjectDetail details( Long zvgId, String landAbk)
   {
     try
     {
-      return zvg.getDetails( zvgId, landAbk);
+      return zvgWebClient.getDetails( zvgId, landAbk);
     } catch( FailingHttpStatusCodeException | IOException | URISyntaxException e)
     {
       log.error( e.toString(), e);
@@ -63,10 +68,11 @@ public class SearchManager
     log.debug( "Search: " + settings);
     try
     {
-      List<ZvgObject> result = zvg.search( settings);
-      result.forEach( o -> resolveGeoLocation( o, settings.getCity()));
-      result.forEach( o -> data.put( o.getId(), o));
-      return result;
+      List<ZvgObject> result = zvgWebClient.search( settings);
+      result.forEach( this::resolveGeoLocation);
+      //use returned object of repo
+      Stream<ZvgObject> pers = result.stream().map( o -> zvgObjectRepository.save( o));
+      return pers.collect( Collectors.toList());
     } catch( FailingHttpStatusCodeException | IOException e)
     {
       log.error( e.toString(), e);
@@ -74,11 +80,11 @@ public class SearchManager
     return Collections.emptyList();
   }
 
-  private void resolveGeoLocation( ZvgObject obj, String city)
+  private void resolveGeoLocation( ZvgObject obj)
   {
-    GeoLocation loc = nominatimManager.searchAddress( obj.getLage(), city);
-    if( loc != null)
-      obj.setLocation( loc);
+    NominatimCacheEntry nce = nominatimManager.searchAddress( obj.getLage());
+    if( nce != null)
+      obj.setLocation( new GeoLocation( nce.getAddress().getLatitude(), nce.getAddress().getLongitude()));
     else
       obj.setLocation( new GeoLocation());
   }

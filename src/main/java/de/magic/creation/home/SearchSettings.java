@@ -2,6 +2,8 @@ package de.magic.creation.home;
 
 import java.util.Arrays;
 
+import de.magic.creation.repo.EKind;
+
 public class SearchSettings
 {
   private String  city;

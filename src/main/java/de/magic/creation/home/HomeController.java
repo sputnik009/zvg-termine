@@ -1,5 +1,7 @@
 package de.magic.creation.home;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -7,11 +9,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import de.magic.creation.repo.EKind;
+
 @Controller
 public class HomeController
 {
   private final Logger log = LoggerFactory.getLogger( HomeController.class);
-  
+
   @GetMapping("/home")
   public String homeForm( Model model)
   {
@@ -21,9 +25,9 @@ public class HomeController
   }
 
   @ModelAttribute("allKinds")
-  public EKind[] getAllKinds()
+  public List<EKind> getAllKinds()
   {
     log.debug( "getAllKinds");
-    return EKind.values();
+    return EKind.valuesAsList();
   }
 }

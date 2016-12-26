@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.magic.creation.home.SearchSettings;
+import de.magic.creation.repo.ZvgObject;
 
 @Controller
 @SessionAttributes("searchSettings")

@@ -1,29 +1,79 @@
-package de.magic.creation.search;
+package de.magic.creation.repo;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import de.magic.creation.search.GeoLocation;
+
+@Entity
 public class ZvgObject implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
-  private String            id;
+  @NotNull
+  @Id
+  private Long              id;
 
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  private EKind             art;
+
+  @NotNull
+  @Size(min=1)
   private String            landAbk;
 
+  @Size(min=3)
+  @NotNull
   private String            aktenzeichen;
 
+  @Size(min=3)
+  @NotNull
   private String            detailLink;
 
+  @Size(min=3)
+  @NotNull
   private String            objekt;
 
+  @Size(min=3)
+  @NotNull
   private String            lage;
 
+  @NotNull
   private Integer           verkerhswert;
 
+  @NotNull
   private LocalDateTime     termin;
 
+  @Embedded
   private GeoLocation       location;
+
+  public Long getId()
+  {
+    return id;
+  }
+
+  public void setId( Long id)
+  {
+    this.id = id;
+  }
+
+  public EKind getArt()
+  {
+    return art;
+  }
+
+  public void setArt( EKind art)
+  {
+    this.art = art;
+  }
 
   public String getAktenzeichen()
   {
@@ -93,16 +143,6 @@ public class ZvgObject implements Serializable
   public void setLocation( GeoLocation location)
   {
     this.location = location;
-  }
-
-  public String getId()
-  {
-    return id;
-  }
-
-  public void setId( String id)
-  {
-    this.id = id;
   }
 
   public String getLandAbk()

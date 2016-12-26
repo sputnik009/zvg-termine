@@ -8,6 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import de.magic.creation.repo.ZvgObject;
+import de.magic.creation.repo.ZvgObjectDetail;
+
 @Controller
 public class DetailsController
 {
@@ -22,7 +25,7 @@ public class DetailsController
   }
 
   @GetMapping("/details/{id}")
-  public String details( @PathVariable(value = "id") final String id, Model model)
+  public String details( @PathVariable(value = "id") final Long id, Model model)
   {
     log.debug( "details: " + id);
     ZvgObject zvgObject = searchManager.getObject( id);

@@ -1,22 +1,28 @@
 package de.magic.creation.search;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gargoylesoftware.htmlunit.html.DomElement;
@@ -25,59 +31,30 @@ import com.gargoylesoftware.htmlunit.html.DomNodeList;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
+import de.magic.creation.repo.EKind;
+import de.magic.creation.repo.ZvgObject;
+
 @Service
-public class ZvgParser
+public class ZvgObjectParser
 {
-  private final Logger log = LoggerFactory.getLogger( ZvgParser.class);
+  private final Logger            log                      = LoggerFactory.getLogger( ZvgObjectParser.class);
 
-  public ZvgObjectDetail parseDetail( HtmlPage result)
+  //Dienstag, 03. Januar 2017, 13:00 Uhr
+  private final DateTimeFormatter germanLongDateTimeFormat =
+    DateTimeFormatter.ofPattern( "cccc, dd. MMMM yyyy, HH:mm 'Uhr'", Locale.GERMAN);
+
+  private Validator               validator;
+
+  @Autowired
+  public ZvgObjectParser( Validator validator)
   {
-    DomElement table = result.getElementById( "anzeige");
-    DomElement tbody = table.getFirstElementChild();
-    List<HtmlElement> rows = getChildsByTagName( tbody, "tr");
-    Map<String, HtmlElement> attrToVal =
-      rows.stream().filter( e -> htmlToKeyName( e) != null && htmlToValueNode( e) != null)
-        .collect( Collectors.toMap( this::htmlToKeyName, this::htmlToValueNode));
-
-    ZvgObjectDetail detail = new ZvgObjectDetail();
-
-    HtmlElement elm = attrToVal.get( "Grundbuch");
-    if( elm != null)
-    {
-      detail.setGrundbuch( innerHtml( elm));
-    }
-
-    elm = attrToVal.get( "Beschreibung");
-    if( elm != null)
-    {
-      detail.setBeschreibung( elm.asText().trim());
-    }
-
-    elm = attrToVal.get( "Ort");
-    if( elm != null)
-    {
-      detail.setOrtVersteigerung( elm.asText().trim());
-    }
-    return detail;
-  }
-
-  private String innerHtml( HtmlElement elm)
-  {
-    final StringWriter stringWriter = new StringWriter();
-    try (final PrintWriter printWriter = new PrintWriter( stringWriter))
-    {
-      DomNode child = elm.getFirstChild();
-      while( child != null)
-      {
-        printWriter.print( child.asXml());
-        child = child.getNextSibling();
-      }
-    }
-    return stringWriter.toString();
+    this.validator = validator;
   }
 
   public List<ZvgObject> parseSearchResults( HtmlPage result)
   {
+    log.debug( "parseSearchResults");
+
     DomElement form = result.getElementByName( "form_sucheZvg");
     DomNodeList<HtmlElement> tables = form.getElementsByTagName( "table");
     if( tables.size() < 2) return Collections.emptyList();
@@ -87,11 +64,43 @@ public class ZvgParser
 
     List<List<HtmlElement>> objectRows = splitBySeparator( rows, this::isSplitter);
 
-    return objectRows.stream().map( this::parse).filter( o -> o != null && o.getObjekt() != null)
-      .collect( Collectors.toList());
+    return objectRows.stream().map( this::parse).filter( this::validate).collect( Collectors.toList());
   }
 
-  ZvgObject parse( List<HtmlElement> objectRows)
+  private boolean validate( ZvgObject o)
+  {
+    if( o == null)
+    {
+      log.error( "ZvgObject is NULL!");
+      return false;
+    }
+
+    if( o.getId() == null)
+    {
+      log.error( "ZvgObject.id is NULL!");
+      return false;
+    }
+
+    if( o.getObjekt() == null)
+    {
+      log.error( "ZvgObject.objekt is NULL!");
+      return false;
+    }
+
+    if( o.getArt() == null)
+    {
+      log.error( "ZvgObject.art is NULL! Objekt: " + o.getObjekt());
+      return false;
+    }
+
+    Set<ConstraintViolation<ZvgObject>> violatedConstraints = validator.validate( o);
+
+    violatedConstraints.forEach( vc -> log.error( vc.getPropertyPath() + " " + vc.getMessage()));
+
+    return violatedConstraints.isEmpty();
+  }
+
+  private ZvgObject parse( List<HtmlElement> objectRows)
   {
     Map<String, HtmlElement> attrToVal =
       objectRows.stream().collect( Collectors.toMap( this::htmlToKeyName, this::htmlToValueNode));
@@ -114,7 +123,9 @@ public class ZvgParser
     if( elm != null)
     {
       //<td valign="center" align="left" colspan="2"><b>Eigentumswohnung (3 bis 4 Zimmer)<!--Lage--->:</b> F.-Jost-Str. 8/Breslauer Str.  42, 04299 Leipzig, Stötteritz</td>
-      obj.setObjekt( extractContentOrEmpty( elm, "b").replace( ":", ""));
+      String object = extractContentOrEmpty( elm, "b").replace( ":", "");
+      obj.setObjekt( object);
+      obj.setArt( EKind.fromLabel( object));
       obj.setLage( extractLageOrNull( elm));
     }
     elm = attrToVal.get( "Verkehrswert");
@@ -127,12 +138,25 @@ public class ZvgParser
       obj.setVerkerhswert( verkerhswert);
     }
 
+    elm = attrToVal.get( "Termin");
+    if( elm != null)
+    {
+      String termin = elm.asText().trim();
+      try
+      {
+        obj.setTermin( LocalDateTime.parse( termin, germanLongDateTimeFormat));
+      } catch( DateTimeParseException e)
+      {
+        log.error( e.toString(), e);
+      }
+    }
+
     return obj;
   }
 
   private void parseZvgId( String link, ZvgObject obj)
   {
-    if( link == null) 
+    if( link == null)
     {
       log.error( "link is null!");
       return;
@@ -146,9 +170,9 @@ public class ZvgParser
       String landAbk = paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue())
         .findFirst().orElse( null);
 
-      obj.setId( zvg_id);
+      obj.setId( Long.parseLong( zvg_id));
       obj.setLandAbk( landAbk);
-    } catch( URISyntaxException e)
+    } catch( Exception e)
     {
       log.error( e.toString(), e);
     }
@@ -265,16 +289,5 @@ public class ZvgParser
     }
 
     return finalList;
-  }
-
-  private List<HtmlElement> getChildsByTagName( DomElement domElement, final String tagName)
-  {
-    Stream<DomElement> stream = StreamSupport.stream( domElement.getChildElements().spliterator(), false);
-
-    return stream
-      .filter( elem -> elem.getLocalName().equalsIgnoreCase( tagName))
-      .filter( elem -> elem instanceof HtmlElement)
-      .map( elem -> (HtmlElement) elem)
-      .collect( Collectors.toList());
   }
 }

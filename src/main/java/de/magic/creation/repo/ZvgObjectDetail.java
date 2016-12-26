@@ -1,4 +1,4 @@
-package de.magic.creation.search;
+package de.magic.creation.repo;
 
 import java.io.Serializable;
 

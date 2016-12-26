@@ -21,18 +21,21 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 
 import de.magic.creation.home.SearchSettings;
+import de.magic.creation.repo.ZvgObject;
+import de.magic.creation.repo.ZvgObjectDetail;
 
 @Service
 public class ZvgWebClient
 {
-  final WebClient webClient;
+  private final WebClient webClient;
 
-  final URL       baseUrl;
+  private final URL       baseUrl;
 
-  final ZvgParser parser;
+  private final ZvgObjectParser parser;
+  private final ZvgObjectDetailParser detailParser;
 
   @Autowired
-  public ZvgWebClient( ZvgParser parser) throws MalformedURLException
+  public ZvgWebClient( ZvgObjectParser parser, ZvgObjectDetailParser detailParser) throws MalformedURLException
   {
     baseUrl = new URL( "https://www.zvg-portal.de/index.php?button=Suchen&all=1");
 
@@ -48,16 +51,17 @@ public class ZvgWebClient
     webClient.getOptions().setDoNotTrackEnabled( true);
 
     this.parser = parser;
+    this.detailParser = detailParser;
   }
 
-  public ZvgObjectDetail getDetails( String zvgId, String landAbk)
+  public ZvgObjectDetail getDetails( long zvgId, String landAbk)
     throws FailingHttpStatusCodeException, IOException, URISyntaxException
   {
     ////index.php?button=showZvg&zvg_id=29218&land_abk=sn
     URL detailLink = new URL( "https://www.zvg-portal.de/index.php");
     List<NameValuePair> params = new ArrayList<>();
     params.add( new NameValuePair( "button", "showZvg"));
-    params.add( new NameValuePair( "zvg_id", zvgId));
+    params.add( new NameValuePair( "zvg_id", Long.toString( zvgId)));
     params.add( new NameValuePair( "land_abk", landAbk));
 
     WebRequest requestSettings = new WebRequest( detailLink, HttpMethod.GET);
@@ -89,7 +93,7 @@ public class ZvgWebClient
 
     HtmlPage page = webClient.getPage( requestSettings);
 
-    return parser.parseDetail( page);
+    return detailParser.parseDetail( page);
   }
 
   public List<ZvgObject> search( SearchSettings settings) throws FailingHttpStatusCodeException, IOException
