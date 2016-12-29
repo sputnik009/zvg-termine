@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import de.magic.creation.repo.EKind;
+import de.magic.creation.repo.ELand;
 
 @Controller
 public class HomeController
@@ -29,5 +30,12 @@ public class HomeController
   {
     log.debug( "getAllKinds");
     return EKind.valuesAsList();
+  }
+  
+  @ModelAttribute("allLands")
+  public List<ELand> getAllLands()
+  {
+    log.debug( "getAllLands");
+    return ELand.valuesAsList();
   }
 }

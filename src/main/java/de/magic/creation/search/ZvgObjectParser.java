@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -32,6 +34,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import de.magic.creation.repo.EKind;
+import de.magic.creation.repo.ELand;
 import de.magic.creation.repo.ZvgObject;
 
 @Service
@@ -42,6 +45,8 @@ public class ZvgObjectParser
   //Dienstag, 03. Januar 2017, 13:00 Uhr
   private final DateTimeFormatter germanLongDateTimeFormat =
     DateTimeFormatter.ofPattern( "cccc, dd. MMMM yyyy, HH:mm 'Uhr'", Locale.GERMAN);
+
+  private final Pattern           stadtPattern             = Pattern.compile( ".*\\d\\d\\d\\d\\d ([^,]*)(,.*)*");
 
   private Validator               validator;
 
@@ -60,9 +65,12 @@ public class ZvgObjectParser
     if( tables.size() < 2) return Collections.emptyList();
 
     HtmlElement resultTable = tables.get( 1);
-    DomNodeList<HtmlElement> rows = resultTable.getElementsByTagName( "tr");
+    DomElement tbody = resultTable.getFirstElementChild();
+    List<HtmlElement> rows = getChildsByTagName( tbody, "tr");
 
     List<List<HtmlElement>> objectRows = splitBySeparator( rows, this::isSplitter);
+
+    log.debug( "Count of Result gorups: " + objectRows.size());
 
     return objectRows.stream().map( this::parse).filter( this::validate).collect( Collectors.toList());
   }
@@ -126,7 +134,18 @@ public class ZvgObjectParser
       String object = extractContentOrEmpty( elm, "b").replace( ":", "");
       obj.setObjekt( object);
       obj.setArt( EKind.fromLabel( object));
-      obj.setLage( extractLageOrNull( elm));
+      String lage = extractLageOrNull( elm);
+      obj.setLage( lage);
+      //Kernweg 8, 01458 Ottendorf-Okrilla, OT Medingen
+      if( lage != null)
+      {
+        Matcher m = stadtPattern.matcher( lage);
+        if( m.matches())
+        {
+          String stadt = m.group( 1).trim();
+          obj.setStadt( stadt);
+        }
+      }
     }
     elm = attrToVal.get( "Verkehrswert");
     if( elm != null)
@@ -167,11 +186,11 @@ public class ZvgObjectParser
       //index.php?button=showZvg&amp;zvg_id=29218&amp;land_abk=sn
       String zvg_id = paramsList.stream().filter( nvp -> "zvg_id".equals( nvp.getName())).map( nvp -> nvp.getValue())
         .findFirst().orElse( null);
-      String landAbk = paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue())
-        .findFirst().orElse( null);
+      ELand land = paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue())
+        .findFirst().map( la -> ELand.fromValue( la)).orElse( null);
 
       obj.setId( Long.parseLong( zvg_id));
-      obj.setLandAbk( landAbk);
+      obj.setLand( land);
     } catch( Exception e)
     {
       log.error( e.toString(), e);
@@ -238,7 +257,9 @@ public class ZvgObjectParser
     if( tds.size() > 0)
     {
       String[] names = tds.get( 0).asText().trim().split( " |:");
-      return names[0];
+      String key = names[0];
+      log.debug( key);
+      return key;
     }
 
     return null;
@@ -267,7 +288,18 @@ public class ZvgObjectParser
     return firstTd.getElementsByTagName( "hr").size() == 1;
   }
 
-  private static <T> List<List<T>> splitBySeparator( List<T> list, Predicate< ? super T> predicate)
+  static List<HtmlElement> getChildsByTagName( DomElement domElement, final String tagName)
+  {
+    Stream<DomElement> stream = StreamSupport.stream( domElement.getChildElements().spliterator(), false);
+
+    return stream
+      .filter( elem -> elem.getLocalName().equalsIgnoreCase( tagName))
+      .filter( elem -> elem instanceof HtmlElement)
+      .map( elem -> (HtmlElement) elem)
+      .collect( Collectors.toList());
+  }
+
+  static <T> List<List<T>> splitBySeparator( List<T> list, Predicate< ? super T> predicate)
   {
     final List<List<T>> finalList = new ArrayList<>();
     int fromIndex = 0;

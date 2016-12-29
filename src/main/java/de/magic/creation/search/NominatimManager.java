@@ -34,17 +34,18 @@ public class NominatimManager
     nominatimClient = new JsonNominatimClient( client, "sputnik009@yahoo.de");
   }
 
+  @Cacheable()
   public NominatimCacheEntry searchAddress( String query)
   {
     log.info( "searchAddress: " + query);
     if( query == null || query.trim().isEmpty()) return null;
     query = query.trim().toLowerCase();
+    query = query.replace( "unbekannt, ", "").trim();
 
     return searchAddressInternal( query);
   }
 
-  @Cacheable()
-  protected NominatimCacheEntry searchAddressInternal( String query)
+  private NominatimCacheEntry searchAddressInternal( String query)
   {
     log.info( "searchAddress (internal): " + query);
 
@@ -89,7 +90,7 @@ public class NominatimManager
   {
     try
     {
-      Thread.sleep( 500);
+      Thread.sleep( 1500);
       List<Address> addresses = nominatimClient.search( query);
 
       if( addresses.size() == 1) { return addresses.get( 0); }

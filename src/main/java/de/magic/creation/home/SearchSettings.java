@@ -3,17 +3,37 @@ package de.magic.creation.home;
 import java.util.Arrays;
 
 import de.magic.creation.repo.EKind;
+import de.magic.creation.repo.ELand;
 
 public class SearchSettings
 {
   private String  city;
+
+  private ELand   land;
 
   private EKind[] kinds;
 
   public SearchSettings()
   {
     city = "Leipzig";
+    land = ELand.Sachsen;
     kinds = new EKind[] { EKind.Einfamilienhaus, EKind.Zweifamilienhaus, EKind.Eigentumswohnung_3_4 };
+  }
+
+  public SearchSettings( ELand bundesland)
+  {
+    land = bundesland;
+    kinds = new EKind[0];
+  }
+
+  public ELand getLand()
+  {
+    return land;
+  }
+
+  public void setLand( ELand land)
+  {
+    this.land = land;
   }
 
   public String getCity()
@@ -42,6 +62,8 @@ public class SearchSettings
     StringBuilder builder = new StringBuilder();
     builder.append( "SearchSettings [city=");
     builder.append( city);
+    builder.append( ", land=");
+    builder.append( land);
     builder.append( ", kinds=");
     builder.append( Arrays.toString( kinds));
     builder.append( "]");
@@ -55,6 +77,7 @@ public class SearchSettings
     int result = 1;
     result = prime * result + ((city == null) ? 0 : city.hashCode());
     result = prime * result + Arrays.hashCode( kinds);
+    result = prime * result + ((land == null) ? 0 : land.hashCode());
     return result;
   }
 
@@ -71,6 +94,7 @@ public class SearchSettings
     }
     else if( !city.equals( other.city)) return false;
     if( !Arrays.equals( kinds, other.kinds)) return false;
+    if( land != other.land) return false;
     return true;
   }
 }

@@ -2,14 +2,29 @@ package de.magic.creation.repo;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Lob;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+@Embeddable
 public class ZvgObjectDetail implements Serializable
 {
   private static final long serialVersionUID = 1L;
 
+  @Size(min = 3)
+  @NotNull
   private String            grundbuch;
 
+  @Size(min = 3)
+  @NotNull
+  @Lob
+  @Column(length = 1000)
   private String            beschreibung;
 
+  @Size(min = 3)
+  @NotNull
   private String            ortVersteigerung;
 
   public String getGrundbuch()

@@ -8,12 +8,18 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import de.magic.creation.search.GeoLocation;
 
 @Entity
+@Table(indexes = {
+  @Index(columnList = "stadt"),
+  @Index(columnList = "art")
+})
 public class ZvgObject implements Serializable
 {
   private static final long serialVersionUID = 1L;
@@ -24,25 +30,29 @@ public class ZvgObject implements Serializable
 
   @NotNull
   @Enumerated(EnumType.STRING)
-  private EKind             art;
+  private ELand             land;
 
   @NotNull
-  @Size(min=1)
-  private String            landAbk;
+  @Enumerated(EnumType.STRING)
+  private EKind             art;
 
-  @Size(min=3)
+  @Size(min = 3)
+  @NotNull
+  private String            stadt;
+
+  @Size(min = 3)
   @NotNull
   private String            aktenzeichen;
 
-  @Size(min=3)
+  @Size(min = 3)
   @NotNull
   private String            detailLink;
 
-  @Size(min=3)
+  @Size(min = 3)
   @NotNull
   private String            objekt;
 
-  @Size(min=3)
+  @Size(min = 3)
   @NotNull
   private String            lage;
 
@@ -54,6 +64,9 @@ public class ZvgObject implements Serializable
 
   @Embedded
   private GeoLocation       location;
+
+  @Embedded
+  private ZvgObjectDetail   details;
 
   public Long getId()
   {
@@ -73,6 +86,16 @@ public class ZvgObject implements Serializable
   public void setArt( EKind art)
   {
     this.art = art;
+  }
+
+  public String getStadt()
+  {
+    return stadt;
+  }
+
+  public void setStadt( String stadt)
+  {
+    this.stadt = stadt;
   }
 
   public String getAktenzeichen()
@@ -145,14 +168,24 @@ public class ZvgObject implements Serializable
     this.location = location;
   }
 
-  public String getLandAbk()
+  public ELand getLand()
   {
-    return landAbk;
+    return land;
   }
 
-  public void setLandAbk( String landAbk)
+  public void setLand( ELand land)
   {
-    this.landAbk = landAbk;
+    this.land = land;
+  }
+
+  public ZvgObjectDetail getDetails()
+  {
+    return details;
+  }
+
+  public void setDetails( ZvgObjectDetail details)
+  {
+    this.details = details;
   }
 
   @Override
@@ -161,6 +194,12 @@ public class ZvgObject implements Serializable
     StringBuilder builder = new StringBuilder();
     builder.append( "ZvgObject [id=");
     builder.append( id);
+    builder.append( ", land=");
+    builder.append( land);
+    builder.append( ", art=");
+    builder.append( art);
+    builder.append( ", stadt=");
+    builder.append( stadt);
     builder.append( ", aktenzeichen=");
     builder.append( aktenzeichen);
     builder.append( ", detailLink=");

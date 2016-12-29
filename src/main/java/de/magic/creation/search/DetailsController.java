@@ -29,7 +29,7 @@ public class DetailsController
   {
     log.debug( "details: " + id);
     ZvgObject zvgObject = searchManager.getObject( id);
-    ZvgObjectDetail zvgDetail = searchManager.details( zvgObject.getId(), zvgObject.getLandAbk());
+    ZvgObjectDetail zvgDetail = searchManager.details( zvgObject);
     log.debug( "found obj: " + zvgObject);
     log.debug( "found detials: " + zvgDetail);
 

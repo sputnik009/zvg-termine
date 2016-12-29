@@ -83,7 +83,7 @@ public enum EKind
     if( label == null || label.trim().isEmpty()) return null;
     String cleanedLabel = cleanLabel( label);
 
-    return KIND_VALUES.stream().filter( k -> cleanedLabel.startsWith( cleanLabel( k.label))).findFirst().orElse( null);
+    return KIND_VALUES.stream().filter( k -> cleanedLabel.contains( cleanLabel( k.label))).findFirst().orElse( null);
   }
 
   private static String cleanLabel( String label)

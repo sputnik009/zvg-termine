@@ -5,8 +5,6 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,7 @@ public class ZvgObjectDetailParser
 
     DomElement table = result.getElementById( "anzeige");
     DomElement tbody = table.getFirstElementChild();
-    List<HtmlElement> rows = getChildsByTagName( tbody, "tr");
+    List<HtmlElement> rows = ZvgObjectParser.getChildsByTagName( tbody, "tr");
     Map<String, HtmlElement> attrToVal =
       rows.stream().filter( e -> htmlToKeyName( e) != null && htmlToValueNode( e) != null)
         .collect( Collectors.toMap( this::htmlToKeyName, this::htmlToValueNode));
@@ -91,16 +89,5 @@ public class ZvgObjectDetailParser
     if( tds.size() < 2) return null;
 
     return tds.get( 1);
-  }
-
-  private List<HtmlElement> getChildsByTagName( DomElement domElement, final String tagName)
-  {
-    Stream<DomElement> stream = StreamSupport.stream( domElement.getChildElements().spliterator(), false);
-
-    return stream
-      .filter( elem -> elem.getLocalName().equalsIgnoreCase( tagName))
-      .filter( elem -> elem instanceof HtmlElement)
-      .map( elem -> (HtmlElement) elem)
-      .collect( Collectors.toList());
   }
 }

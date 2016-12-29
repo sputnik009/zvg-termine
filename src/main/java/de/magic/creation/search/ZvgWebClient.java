@@ -125,13 +125,14 @@ public class ZvgWebClient
     List<NameValuePair> formData = new ArrayList<>();
     formData.add( new NameValuePair( "ger_name", "-- Alle Amtsgerichte --"));
     formData.add( new NameValuePair( "order_by", "2"));
-    formData.add( new NameValuePair( "land_abk", "sn"));
+    formData.add( new NameValuePair( "land_abk", settings.getLand().getValue()));
     formData.add( new NameValuePair( "ger_id", "0"));
 
     Arrays.stream( settings.getKinds())
       .forEach( k -> formData.add( new NameValuePair( "obj_arr[]", Integer.toString( k.getId()))));
 
-    formData.add( new NameValuePair( "ort", settings.getCity()));
+    if( settings.getCity() != null)
+      formData.add( new NameValuePair( "ort", settings.getCity()));
 
     WebRequest requestSettings = new WebRequest( baseUrl, HttpMethod.POST);
 
