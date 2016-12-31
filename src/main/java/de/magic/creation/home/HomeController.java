@@ -8,11 +8,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import de.magic.creation.repo.EKind;
 import de.magic.creation.repo.ELand;
 
 @Controller
+@SessionAttributes("searchSettings")
 public class HomeController
 {
   private final Logger log = LoggerFactory.getLogger( HomeController.class);
@@ -21,7 +23,6 @@ public class HomeController
   public String homeForm( Model model)
   {
     log.debug( "homeForm");
-    model.addAttribute( "searchSettings", new SearchSettings());
     return "home";
   }
 
@@ -37,5 +38,11 @@ public class HomeController
   {
     log.debug( "getAllLands");
     return ELand.valuesAsList();
+  }
+  
+  @ModelAttribute("searchSettings")
+  public SearchSettings getSearchSettings()
+  {
+    return new SearchSettings();
   }
 }

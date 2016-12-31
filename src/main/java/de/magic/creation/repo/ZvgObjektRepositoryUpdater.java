@@ -1,10 +1,12 @@
 package de.magic.creation.repo;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +17,27 @@ public class ZvgObjektRepositoryUpdater
 {
   private final Logger               log = LoggerFactory.getLogger( ZvgObjektRepositoryUpdater.class);
 
+  private final Configuration        zvgConf;
+
   private final SearchManagerWeb     searchManager;
 
   private final IZvgObjectRepository zvgObjectRepository;
 
-  public ZvgObjektRepositoryUpdater( SearchManagerWeb searchManager, IZvgObjectRepository zvgObjectRepository)
+  @Autowired
+  public ZvgObjektRepositoryUpdater( SearchManagerWeb searchManager, IZvgObjectRepository zvgObjectRepository,
+    Configuration zvgConf)
   {
     this.searchManager = searchManager;
     this.zvgObjectRepository = zvgObjectRepository;
+    this.zvgConf = zvgConf;
   }
 
   //                      ms     s   m
   @Scheduled(fixedRate = 1000 * 60 * 60)
   public void update()
   {
+    if( !isTimeToUpdate()) return;
+
     log.info( "update");
 
     for( ELand land : ELand.valuesAsList())
@@ -40,12 +49,22 @@ public class ZvgObjektRepositoryUpdater
       zvgObjectRepository.save( ofBundesland);
     }
 
-    deleteOld();
+    saveLastSearchUpdateDate();
   }
 
-  private void deleteOld()
+  private void saveLastSearchUpdateDate()
   {
-    long cnt = zvgObjectRepository.removeByTerminLessThan( LocalDateTime.now());
-    log.debug( "deleted olds: " + cnt);
+    zvgConf.setProperty( "lastSearchUpdate", LocalDate.now().toEpochDay());
+  }
+
+  private boolean isTimeToUpdate()
+  {
+    LocalDate lastSearchUpdate = LocalDate.ofEpochDay( zvgConf.getLong( "lastSearchUpdate", 0));
+    LocalDate nextSerachUpdate = lastSearchUpdate.plusDays( 1);
+
+    log.info( "lastSearchUpdate: " + lastSearchUpdate);
+    log.info( "nextSerachUpdate: " + nextSerachUpdate);
+
+    return LocalDate.now().isAfter( nextSerachUpdate);
   }
 }

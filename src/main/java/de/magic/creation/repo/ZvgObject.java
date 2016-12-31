@@ -17,8 +17,10 @@ import de.magic.creation.search.GeoLocation;
 
 @Entity
 @Table(indexes = {
-  @Index(columnList = "stadt"),
-  @Index(columnList = "art")
+  @Index(columnList = "art", name = "idxArt"),
+  @Index(columnList = "land", name = "idxLand"),
+  @Index(columnList = "stadt, land", name = "idxStadtLand"),
+  @Index(columnList = "termin", name = "idxTermin")
 })
 public class ZvgObject implements Serializable
 {
@@ -61,6 +63,9 @@ public class ZvgObject implements Serializable
 
   @NotNull
   private LocalDateTime     termin;
+
+  @NotNull
+  private boolean           aufgehoben;
 
   @Embedded
   private GeoLocation       location;
@@ -188,6 +193,16 @@ public class ZvgObject implements Serializable
     this.details = details;
   }
 
+  public boolean isAufgehoben()
+  {
+    return aufgehoben;
+  }
+
+  public void setAufgehoben( boolean aufgehoben)
+  {
+    this.aufgehoben = aufgehoben;
+  }
+
   @Override
   public String toString()
   {
@@ -212,8 +227,12 @@ public class ZvgObject implements Serializable
     builder.append( verkerhswert);
     builder.append( ", termin=");
     builder.append( termin);
+    builder.append( ", aufgehoben=");
+    builder.append( aufgehoben);
     builder.append( ", location=");
     builder.append( location);
+    builder.append( ", details=");
+    builder.append( details);
     builder.append( "]");
     return builder.toString();
   }

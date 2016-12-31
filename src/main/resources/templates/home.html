@@ -1,21 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="base :: common_header(~{::title},~{},~{})">
+<head th:replace="base :: common_header(~{::title},~{::link},~{})">
   <title>Zvg: An user friendly version</title>
+  <link rel="stylesheet" th:href="@{/css/home.css}" />
 </head>
 <body>
-  <nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">ZVG</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li class="active"><a href="#">Home</a></li>
-      <li><a href="#">About</a></li>
-    </ul>
-  </div>
-  </nav>
-  <header class="jumbotron text-center">
+  <header class="page-header text-center">
     <h1>Zwangsversteigerungstermine</h1>
   </header>
   <main class="container">
@@ -38,7 +28,7 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-          <div th:each="kind : ${allKinds}" class="checkbox">
+          <div th:each="kind : ${allKinds}" class="checkbox-inline col-sm-5">
             <label><input type="checkbox" th:field="*{kinds}" th:value="${kind}" /><span th:text="${kind.label}" th:remove="tag">Label</span></label>
           </div>
         </div>

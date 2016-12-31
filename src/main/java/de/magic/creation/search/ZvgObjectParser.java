@@ -161,6 +161,15 @@ public class ZvgObjectParser
     if( elm != null)
     {
       String termin = elm.asText().trim();
+      //  Der Termin Mittwoch, 04. Januar 2017, 11:00 Uhr wurde aufgehoben.
+      boolean isAufgehoben = termin.contains( "wurde aufgehoben");
+      if( isAufgehoben)
+      {
+        termin = termin.replace( "Der Termin ", "");
+        termin = termin.replace( " wurde aufgehoben.", "");
+        obj.setAufgehoben( true);
+      }
+
       try
       {
         obj.setTermin( LocalDateTime.parse( termin, germanLongDateTimeFormat));

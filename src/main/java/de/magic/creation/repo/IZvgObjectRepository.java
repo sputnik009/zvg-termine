@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IZvgObjectRepository extends JpaRepository<ZvgObject, Long>
 {
-  Long removeByTerminLessThan( LocalDateTime termin);
+  List<ZvgObject> findByStadtAndLandAndArtInAndTerminAfter(String stadt, ELand land, EKind[] art, LocalDateTime termin);
   
-  List<ZvgObject> findByStadtAndLandAndArtIn(String stadt, ELand land, EKind[] art);
+  List<ZvgObject> findByLandAndArtInAndTerminAfter(ELand land, EKind[] art, LocalDateTime termin);
 }

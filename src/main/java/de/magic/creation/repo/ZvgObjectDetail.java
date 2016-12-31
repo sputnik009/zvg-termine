@@ -15,6 +15,8 @@ public class ZvgObjectDetail implements Serializable
 
   @Size(min = 3)
   @NotNull
+  @Lob
+  @Column(length = 1000)
   private String            grundbuch;
 
   @Size(min = 3)

@@ -1,5 +1,6 @@
 package de.magic.creation.search;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -52,12 +53,18 @@ public class SearchManager
   @Cacheable(cacheNames = "searchs")
   public List<ZvgObject> search( SearchSettings settings)
   {
-    log.debug( "Search: " + settings);
+    log.info( "Search: " + settings);
 
     log.debug( "Search in db");
+    
+    List<ZvgObject> result;
+    String stadt = settings.getCity();
 
-    List<ZvgObject> result =
-      zvgObjectRepository.findByStadtAndLandAndArtIn( settings.getCity(), settings.getLand(), settings.getKinds());
+    if( stadt != null && !stadt.trim().isEmpty())
+      result = zvgObjectRepository.findByStadtAndLandAndArtInAndTerminAfter( stadt, settings.getLand(), settings.getKinds(), LocalDateTime.now());
+    else
+      result = zvgObjectRepository.findByLandAndArtInAndTerminAfter( settings.getLand(), settings.getKinds(), LocalDateTime.now());
+    
     log.debug( "db results: " + result.size());
 
     if( result.size() > 0) return result;

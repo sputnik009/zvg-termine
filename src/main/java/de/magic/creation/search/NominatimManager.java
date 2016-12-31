@@ -2,11 +2,14 @@ package de.magic.creation.search;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -21,12 +24,15 @@ import fr.dudie.nominatim.model.Address;
 @CacheConfig(cacheNames = "nominatim")
 public class NominatimManager
 {
-  private final Logger               log = LoggerFactory.getLogger( NominatimManager.class);
+  private final Logger               log          = LoggerFactory.getLogger( NominatimManager.class);
+
+  private final Pattern              addressPattern = Pattern.compile( "(.*\\d\\d\\d\\d\\d ([^,]*))(,.*)*");
 
   private final INominatimRepository nominatimRepository;
 
   private NominatimClient            nominatimClient;
 
+  @Autowired
   public NominatimManager( INominatimRepository nominatimRepository)
   {
     this.nominatimRepository = nominatimRepository;
@@ -40,9 +46,26 @@ public class NominatimManager
     log.info( "searchAddress: " + query);
     if( query == null || query.trim().isEmpty()) return null;
     query = query.trim().toLowerCase();
+    Matcher m = addressPattern.matcher( query);
+    if( m.matches()) query = m.group( 1).trim();
+    
     query = query.replace( "unbekannt, ", "").trim();
 
-    return searchAddressInternal( query);
+    // lindenstr. 6, 39615 werben, ot berge
+    // bockslache 19, 06846 dessau-roßlau ortslage kleinkühnau
+    query = removeAndFollwoing( query, ", ot ");
+    query = removeAndFollwoing( query, " ot ");
+    query = removeAndFollwoing( query, "ortslage");
+
+    return searchAddressInternal( query.trim());
+  }
+
+  private String removeAndFollwoing( String str, String toRemove)
+  {
+    int idx = str.indexOf( toRemove);
+    if( idx == -1) return str;
+
+    return str.substring( 0, idx);
   }
 
   private NominatimCacheEntry searchAddressInternal( String query)
@@ -68,7 +91,7 @@ public class NominatimManager
   private NominatimCacheEntry queryNominatimClient( String query)
   {
     log.info( "searchAddress (over NominatimClient): " + query);
-    
+
     Address adr = queryNominatimClientInternal( query);
 
     if( adr == null) return null;
@@ -101,7 +124,7 @@ public class NominatimManager
 
       if( addresses.size() > 0) { return addresses.get( 0); }
 
-      log.warn( "address not found!");
+      log.warn( "address not found: " + query);
       return null;
     } catch( IOException | InterruptedException e)
     {

@@ -6,8 +6,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -27,11 +31,14 @@ import de.magic.creation.repo.ZvgObjectDetail;
 @Service
 public class ZvgWebClient
 {
-  private final WebClient webClient;
+  private final Logger                log = LoggerFactory.getLogger( ZvgWebClient.class);
 
-  private final URL       baseUrl;
+  private final WebClient             webClient;
 
-  private final ZvgObjectParser parser;
+  private final URL                   baseUrl;
+
+  private final ZvgObjectParser       parser;
+
   private final ZvgObjectDetailParser detailParser;
 
   @Autowired
@@ -150,8 +157,17 @@ public class ZvgWebClient
 
     requestSettings.setRequestParameters( formData);
 
-    HtmlPage page = webClient.getPage( requestSettings);
+    Page page = webClient.getPage( requestSettings);
 
-    return parser.parseSearchResults( page);
+    if( page instanceof HtmlPage)
+    {
+      return parser.parseSearchResults( (HtmlPage) page);
+    }
+    else
+    {
+      log.error( "Page is not an HtmlPage:");
+      log.error( page.toString());
+      return Collections.emptyList();
+    }
   }
 }
