@@ -23,7 +23,7 @@
   </div>
   </nav>
   <header class="text-center">
-    <h2>Zvg: An user friendly version</h2>
+    <h2>Zwangsversteigerungstermin</h2>
   </header>
   <div class="container-fluid">
   <main>
@@ -31,6 +31,11 @@
       <h2 th:text="${zvgObj.aktenzeichen}">Aktenzeichen</h2>
       <p th:text="${zvgObj.objekt}"></p>
       <p th:text="${zvgObj.lage}"></p>
+    </section>
+    <section>
+      <h2>Termin</h2>
+      <p th:text="${#temporals.format(zvgObj.termin)}"></p>
+      <p th:text="${zvgDet.ortVersteigerung}"></p>
     </section>
     <section>
       <h2>Beschreibung</h2>

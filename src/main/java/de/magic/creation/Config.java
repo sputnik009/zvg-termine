@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
 
 @Configuration
 @EnableCaching
@@ -21,13 +22,19 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 public class Config
 {
   @Bean
+  public Java8TimeDialect java8TimeDialect()
+  {
+    return new Java8TimeDialect();
+  }
+
+  @Bean
   public javax.validation.Validator localValidatorFactoryBean()
   {
     return new LocalValidatorFactoryBean();
   }
-  
+
   @Bean
-  public ZvgAppConfigFactoryBean databseConfigFactory ( DataSource dataSource) throws IOException, ConfigurationException
+  public ZvgAppConfigFactoryBean databseConfigFactory( DataSource dataSource) throws IOException, ConfigurationException
   {
     return new ZvgAppConfigFactoryBean( new ZvgAppConfig( dataSource));
   }
