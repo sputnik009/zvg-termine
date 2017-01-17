@@ -133,7 +133,11 @@ public class ZvgObjectParser
       //<td valign="center" align="left" colspan="2"><b>Eigentumswohnung (3 bis 4 Zimmer)<!--Lage--->:</b> F.-Jost-Str. 8/Breslauer Str.  42, 04299 Leipzig, Stötteritz</td>
       String object = extractContentOrEmpty( elm, "b").replace( ":", "");
       obj.setObjekt( object);
-      obj.setArt( EKind.fromLabel( object));
+
+      EKind kind = EKind.fromLabel( object);
+      if( kind == null) log.debug( "Kind not found from: " + object);
+      obj.setArt( kind);
+
       String lage = extractLageOrNull( elm);
       obj.setLage( lage);
       //Kernweg 8, 01458 Ottendorf-Okrilla, OT Medingen
@@ -145,6 +149,10 @@ public class ZvgObjectParser
           String stadt = m.group( 1).trim();
           obj.setStadt( stadt);
         }
+        else
+        {
+          log.debug( "Stadt not found from: " + lage);
+        }
       }
     }
     elm = attrToVal.get( "Verkehrswert");
@@ -154,6 +162,7 @@ public class ZvgObjectParser
         .map( p -> extractWertOrNull( p.asText()))
         .filter( w -> w != null)
         .max( Integer::compare).orElse( null);
+      if( verkerhswert == null) log.debug( "Verkahrswert not found from: " + elm.getElementsByTagName( "p").toString());
       obj.setVerkerhswert( verkerhswert);
     }
 
@@ -235,6 +244,8 @@ public class ZvgObjectParser
 
     DomNode lage = b.getNextSibling();
     if( lage != null) return lage.asText().trim();
+    
+    log.debug( "Lage not found from: " + elm.asXml());
     return null;
   }
 
@@ -256,6 +267,11 @@ public class ZvgObjectParser
       .filter( an -> an != null)
       .map( an -> an.getValue())
       .findFirst().orElse( null);
+
+    if( link == null)
+    {
+      log.debug( "Link not found from: " + elm.asXml());
+    }
 
     return link;
   }
