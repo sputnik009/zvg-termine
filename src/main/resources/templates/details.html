@@ -40,6 +40,8 @@
     <section>
       <h2>Beschreibung</h2>
       <p th:text="${zvgDet.beschreibung}"></p>
+      <h3>Gutachten</h3>
+      <a target="_blank" th:href="@{https://zvsachsen.de/?_submit=1&azFullText={id}(id=${zvgObj.aktenzeichen})}">zvsachsen.de</a>
     </section>
     <section>
       <h2>Preis</h2>
@@ -54,18 +56,21 @@
     <div id="map"></div>
   </aside>
   </div>
+  <script th:src="@{/js/leafLeatBingLayer.js}"></script>
   <script th:inline="javascript">
 var myMap = L.map('map');
 //create the tile layer with correct attribution
+/*
 var osmUrl = 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png';
 var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
 var osm = new L.TileLayer(osmUrl, { minZoom : 8, maxZoom : 18, attribution : osmAttrib});
-
+*/
 var lat = [[${latitude}]];
 var lon = [[${longitude}]];
 
 myMap.setView([ lat, lon ], 14);
-myMap.addLayer(osm);
+//myMap.addLayer(osm);
+myMap.addLayer(hybridBingLayer);
 
 var circle = new L.circleMarker([ lat, lon ], {
 	color : '#2e6e9e',

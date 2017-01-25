@@ -10,7 +10,7 @@ form {
 }
 
 main {
-	width: 65%;
+	width: 60%;
 	padding-right: 0.5em;
 }
 
@@ -18,7 +18,7 @@ aside {
 	position: fixed;
 	right: 0;
 	top: 6em;
-	width: 35%;
+	width: 40%;
 	height: 60%;
 	padding-left: 0.5em;
 	padding-right: 0.5em;

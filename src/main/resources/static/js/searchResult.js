@@ -1,19 +1,26 @@
 var myMap = L.map('map');
 // create the tile layer with correct attribution
-var osmUrl = 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png';
-var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-var osm = new L.TileLayer(osmUrl, { minZoom : 8, maxZoom : 18, attribution : osmAttrib});
+/*
+ * var osmUrl = 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png';
+ * var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a>
+ * contributors'; var osm = new L.TileLayer(osmUrl, { minZoom : 8, maxZoom : 18,
+ * attribution : osmAttrib});
+ */
 
 myMap.setView([ 51.3391827, 12.3810549 ], 12);
-myMap.addLayer(osm);
+// myMap.addLayer(osm);
+myMap.addLayer(hybridBingLayer);
 
-var table = $('#resultTable').DataTable({ "paging" : false });
+var table = $('#resultTable').DataTable({
+	"paging" : false
+});
 
 $('#resultTable tbody tr').each(function() {
 	var lat = $(this).attr("latitude");
 	var lon = $(this).attr("longitude");
 
-	if (lat == 0 && lon == 0) return;
+	if (lat == 0 && lon == 0)
+		return;
 
 	var ol = $(this).children("td:nth-child(2)").html();
 	var p = "<p>" + $(this).children("td:nth-child(3)").html() + " €</p>";
