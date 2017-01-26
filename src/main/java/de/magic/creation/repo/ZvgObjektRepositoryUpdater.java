@@ -63,7 +63,7 @@ public class ZvgObjektRepositoryUpdater
     LocalDate nextSerachUpdate = lastSearchUpdate.plusDays( 1);
 
     log.info( "lastSearchUpdate: " + lastSearchUpdate);
-    log.info( "nextSerachUpdate: " + nextSerachUpdate);
+    log.info( "nextSerachUpdate: " + nextSerachUpdate.plusDays( 1));
 
     return LocalDate.now().isAfter( nextSerachUpdate);
   }
