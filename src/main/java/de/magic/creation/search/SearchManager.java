@@ -61,9 +61,9 @@ public class SearchManager
     String stadt = settings.getCity();
 
     if( stadt != null && !stadt.trim().isEmpty())
-      result = zvgObjectRepository.findByStadtAndLandAndArtInAndTerminAfter( stadt, settings.getLand(), settings.getKinds(), LocalDateTime.now());
+      result = zvgObjectRepository.findByStadtAndLandAndArtInAndTerminAfterOrderByVerkerhswert( stadt, settings.getLand(), settings.getKinds(), LocalDateTime.now());
     else
-      result = zvgObjectRepository.findByLandAndArtInAndTerminAfter( settings.getLand(), settings.getKinds(), LocalDateTime.now());
+      result = zvgObjectRepository.findByLandAndArtInAndTerminAfterOrderByVerkerhswert( settings.getLand(), settings.getKinds(), LocalDateTime.now());
     
     log.debug( "db results: " + result.size());
 

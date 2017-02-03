@@ -113,7 +113,7 @@ public class NominatimManager
   {
     try
     {
-      Thread.sleep( 1500);
+      Thread.sleep( 1000);
       List<Address> addresses = nominatimClient.search( query);
 
       if( addresses.size() == 1) { return addresses.get( 0); }

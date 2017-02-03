@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IZvgObjectRepository extends JpaRepository<ZvgObject, Long>
 {
-  List<ZvgObject> findByStadtAndLandAndArtInAndTerminAfter(String stadt, ELand land, EKind[] art, LocalDateTime termin);
+  List<ZvgObject> findByStadtAndLandAndArtInAndTerminAfterOrderByVerkerhswert(String stadt, ELand land, EKind[] art, LocalDateTime termin);
   
-  List<ZvgObject> findByLandAndArtInAndTerminAfter(ELand land, EKind[] art, LocalDateTime termin);
+  List<ZvgObject> findByLandAndArtInAndTerminAfterOrderByVerkerhswert(ELand land, EKind[] art, LocalDateTime termin);
 }
