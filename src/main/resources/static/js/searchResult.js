@@ -12,7 +12,8 @@ myMap.setView([ 51.3391827, 12.3810549 ], 12);
 myMap.addLayer(hybridBingLayer);
 
 var table = $('#resultTable').DataTable({
-	"paging" : false
+	"paging" : false,
+	"order" : [[ 2, "asc" ]]
 });
 
 $('#resultTable tbody tr').each(function() {
