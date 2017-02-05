@@ -56,6 +56,8 @@ public class ZvgWebClient
     webClient.getOptions().setThrowExceptionOnFailingStatusCode( false);
     webClient.getOptions().setThrowExceptionOnScriptError( false);
     webClient.getOptions().setDoNotTrackEnabled( true);
+    
+    webClient.getCache().setMaxSize( 0);
 
     this.parser = parser;
     this.detailParser = detailParser;
@@ -97,6 +99,7 @@ public class ZvgWebClient
     requestSettings.setAdditionalHeader( "Upgrade-Insecure-Requests", "1");
 
     requestSettings.setRequestParameters( params);
+    
 
     HtmlPage page = webClient.getPage( requestSettings);
 

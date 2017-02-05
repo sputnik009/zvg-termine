@@ -36,6 +36,7 @@ public class SearchManagerWeb
 
   public ZvgObjectDetail details( Long zvgId, String landAbk)
   {
+    log.info( "Query details: " + zvgId);
     try
     {
       return zvgWebClient.getDetails( zvgId, landAbk);

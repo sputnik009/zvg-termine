@@ -38,13 +38,14 @@ public class SearchManager
   public ZvgObjectDetail details( ZvgObject zvgObject)
   {
     ZvgObjectDetail details = zvgObject.getDetails();
-    if( details != null) return details;
+    //if( details != null) return details;
 
     details = searchManagerWeb.details( zvgObject.getId(), zvgObject.getLand().getValue());
     if( details != null)
     {
       zvgObject.setDetails( details);
-      zvgObjectRepository.save( zvgObject);
+      zvgObject = zvgObjectRepository.save( zvgObject);
+      return zvgObject.getDetails();
     }
 
     return details;
