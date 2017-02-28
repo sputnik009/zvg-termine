@@ -45,11 +45,13 @@ public class ZvgObjektRepositoryUpdater
       log.info( "update: " + land);
 
       List<ZvgObject> ofBundesland = searchManager.search( land);
-      log.info( "returned " + ofBundesland.size());
+      log.info( land + " returned " + ofBundesland.size());
       zvgObjectRepository.save( ofBundesland);
     }
 
     saveLastSearchUpdateDate();
+    
+    log.info( "update done");
   }
 
   private void saveLastSearchUpdateDate()

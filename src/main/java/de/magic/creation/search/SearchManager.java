@@ -38,7 +38,7 @@ public class SearchManager
   public ZvgObjectDetail details( ZvgObject zvgObject)
   {
     ZvgObjectDetail details = zvgObject.getDetails();
-    //if( details != null) return details;
+    if( details != null) return details;
 
     details = searchManagerWeb.details( zvgObject.getId(), zvgObject.getLand().getValue());
     if( details != null)

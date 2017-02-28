@@ -56,6 +56,7 @@ public class NominatimManager
     query = removeAndFollwoing( query, ", ot ");
     query = removeAndFollwoing( query, " ot ");
     query = removeAndFollwoing( query, "ortslage");
+    query = query.replace( "00000", "");
 
     return searchAddressInternal( query.trim());
   }
