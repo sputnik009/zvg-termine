@@ -36,7 +36,8 @@ public class ZvgObjektRepositoryUpdater
   @Scheduled(fixedRate = 1000 * 60 * 60)
   public void update()
   {
-    if( !isTimeToUpdate()) return;
+    if( !isTimeToUpdate()) 
+      return;
 
     log.info( "update");
 

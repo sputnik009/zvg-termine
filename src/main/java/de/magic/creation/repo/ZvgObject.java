@@ -78,7 +78,7 @@ public class ZvgObject implements Serializable
     return id;
   }
 
-  public void setId( Long id)
+  public void setId( final Long id)
   {
     this.id = id;
   }
@@ -88,7 +88,7 @@ public class ZvgObject implements Serializable
     return art;
   }
 
-  public void setArt( EKind art)
+  public void setArt( final EKind art)
   {
     this.art = art;
   }
@@ -98,7 +98,7 @@ public class ZvgObject implements Serializable
     return stadt;
   }
 
-  public void setStadt( String stadt)
+  public void setStadt( final String stadt)
   {
     this.stadt = stadt;
   }
@@ -108,7 +108,7 @@ public class ZvgObject implements Serializable
     return aktenzeichen;
   }
 
-  public void setAktenzeichen( String aktenzeichen)
+  public void setAktenzeichen( final String aktenzeichen)
   {
     this.aktenzeichen = aktenzeichen;
   }
@@ -118,7 +118,7 @@ public class ZvgObject implements Serializable
     return detailLink;
   }
 
-  public void setDetailLink( String detailLink)
+  public void setDetailLink( final String detailLink)
   {
     this.detailLink = detailLink;
   }
@@ -130,6 +130,15 @@ public class ZvgObject implements Serializable
 
   public void setObjekt( String objekt)
   {
+    if( objekt != null)
+    {
+      objekt = objekt.trim();
+      final int len = objekt.length();
+      if( len > 254)
+      {
+        objekt = objekt.substring( 0, 254);
+      }
+    }
     this.objekt = objekt;
   }
 
@@ -138,7 +147,7 @@ public class ZvgObject implements Serializable
     return lage;
   }
 
-  public void setLage( String lage)
+  public void setLage( final String lage)
   {
     this.lage = lage;
   }
@@ -148,7 +157,7 @@ public class ZvgObject implements Serializable
     return verkerhswert;
   }
 
-  public void setVerkerhswert( Integer verkerhswert)
+  public void setVerkerhswert( final Integer verkerhswert)
   {
     this.verkerhswert = verkerhswert;
   }
@@ -158,7 +167,7 @@ public class ZvgObject implements Serializable
     return termin;
   }
 
-  public void setTermin( LocalDateTime termin)
+  public void setTermin( final LocalDateTime termin)
   {
     this.termin = termin;
   }
@@ -168,7 +177,7 @@ public class ZvgObject implements Serializable
     return location;
   }
 
-  public void setLocation( GeoLocation location)
+  public void setLocation( final GeoLocation location)
   {
     this.location = location;
   }
@@ -178,7 +187,7 @@ public class ZvgObject implements Serializable
     return land;
   }
 
-  public void setLand( ELand land)
+  public void setLand( final ELand land)
   {
     this.land = land;
   }
@@ -188,7 +197,7 @@ public class ZvgObject implements Serializable
     return details;
   }
 
-  public void setDetails( ZvgObjectDetail details)
+  public void setDetails( final ZvgObjectDetail details)
   {
     this.details = details;
   }
@@ -198,7 +207,7 @@ public class ZvgObject implements Serializable
     return aufgehoben;
   }
 
-  public void setAufgehoben( boolean aufgehoben)
+  public void setAufgehoben( final boolean aufgehoben)
   {
     this.aufgehoben = aufgehoben;
   }
@@ -206,7 +215,7 @@ public class ZvgObject implements Serializable
   @Override
   public String toString()
   {
-    StringBuilder builder = new StringBuilder();
+    final StringBuilder builder = new StringBuilder();
     builder.append( "ZvgObject [id=");
     builder.append( id);
     builder.append( ", land=");

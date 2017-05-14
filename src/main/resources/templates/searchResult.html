@@ -37,6 +37,7 @@
 				<tr>
 					<th>Aktenzeichen</th>
 					<th>Objekt/Lage</th>
+					<th>Termin</th>
 					<th>Wert</th>
 				</tr>
 			</thead>
@@ -47,7 +48,8 @@
 						<p th:text="${obj.objekt}">Objekt</p>
 						<p th:text="${obj.lage}">Lage</p>
 					</td>
-					<td th:text="${#numbers.formatDecimal(obj.verkerhswert, 0, 'POINT', 0, 'COMMA')}">wert</td>
+                    <td th:text="${#temporals.format(obj.termin)}">Termin</td>
+					<td th:text="${#numbers.formatDecimal(obj.verkerhswert, 0, 'POINT', 0, 'COMMA')}">Wert</td>
 				</tr>
 			</tbody>
 		</table>
