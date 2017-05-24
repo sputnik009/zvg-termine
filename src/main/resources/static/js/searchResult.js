@@ -24,7 +24,7 @@ $('#resultTable tbody tr').each(function() {
 		return;
 
 	var ol = $(this).children("td:nth-child(2)").html();
-	var p = "<p>" + $(this).children("td:nth-child(3)").html() + " €</p>";
+	var p = "<p>" + $(this).children("td:nth-child(4)").html() + " €</p>";
 
 	var circle = new L.circleMarker([ lat, lon ], {
 		color : '#79b7e7',
