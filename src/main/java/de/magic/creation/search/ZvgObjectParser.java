@@ -48,34 +48,46 @@ public class ZvgObjectParser
 
   private final Pattern           stadtPattern             = Pattern.compile( ".*\\d\\d\\d\\d\\d ([^,]*)(,.*)*");
 
-  private Validator               validator;
+  private final Pattern           preisPattern             = Pattern.compile( "(\\d+(.\\d\\d\\d)(,\\d\\d)?)");
+
+  private final Validator         validator;
 
   @Autowired
-  public ZvgObjectParser( Validator validator)
+  public ZvgObjectParser( final Validator validator)
   {
     this.validator = validator;
   }
 
-  public List<ZvgObject> parseSearchResults( HtmlPage result)
+  public List<ZvgObject> parseSearchResults( final HtmlPage result)
   {
     log.debug( "parseSearchResults");
 
-    DomElement form = result.getElementByName( "form_sucheZvg");
-    DomNodeList<HtmlElement> tables = form.getElementsByTagName( "table");
-    if( tables.size() < 2) return Collections.emptyList();
+    final DomElement form = result.getElementByName( "form_sucheZvg");
+    final DomNodeList<HtmlElement> tables = form.getElementsByTagName( "table");
 
-    HtmlElement resultTable = tables.get( 1);
-    DomElement tbody = resultTable.getFirstElementChild();
-    List<HtmlElement> rows = getChildsByTagName( tbody, "tr");
+    if( tables.isEmpty()) return Collections.emptyList();
 
-    List<List<HtmlElement>> objectRows = splitBySeparator( rows, this::isSplitter);
+    HtmlElement resultTable;
+    if( tables.size() < 2)
+    {
+      resultTable = tables.get( 0);
+    }
+    else
+    {
+      resultTable = tables.get( 1);
+    }
+
+    final DomElement tbody = resultTable.getFirstElementChild();
+    final List<HtmlElement> rows = getChildsByTagName( tbody, "tr");
+
+    final List<List<HtmlElement>> objectRows = splitBySeparator( rows, this::isSplitter);
 
     log.debug( "Count of Result gorups: " + objectRows.size());
 
     return objectRows.stream().map( this::parse).filter( this::validate).collect( Collectors.toList());
   }
 
-  private boolean validate( ZvgObject o)
+  private boolean validate( final ZvgObject o)
   {
     if( o == null)
     {
@@ -101,19 +113,19 @@ public class ZvgObjectParser
       return false;
     }
 
-    Set<ConstraintViolation<ZvgObject>> violatedConstraints = validator.validate( o);
+    final Set<ConstraintViolation<ZvgObject>> violatedConstraints = validator.validate( o);
 
     violatedConstraints.forEach( vc -> log.error( vc.getPropertyPath() + " " + vc.getMessage()));
 
     return violatedConstraints.isEmpty();
   }
 
-  private ZvgObject parse( List<HtmlElement> objectRows)
+  private ZvgObject parse( final List<HtmlElement> objectRows)
   {
-    Map<String, HtmlElement> attrToVal =
+    final Map<String, HtmlElement> attrToVal =
       objectRows.stream().collect( Collectors.toMap( this::htmlToKeyName, this::htmlToValueNode));
 
-    ZvgObject obj = new ZvgObject();
+    final ZvgObject obj = new ZvgObject();
 
     HtmlElement elm = attrToVal.get( "Aktenzeichen");
     if( elm != null)
@@ -123,7 +135,7 @@ public class ZvgObjectParser
       text = text.replace( "(Detailansicht)", "");
       obj.setAktenzeichen( text);
 
-      String link = serachFirstLink( elm);
+      final String link = serachFirstLink( elm);
       parseZvgId( link, obj);
       obj.setDetailLink( link);
     }
@@ -131,22 +143,22 @@ public class ZvgObjectParser
     if( elm != null)
     {
       //<td valign="center" align="left" colspan="2"><b>Eigentumswohnung (3 bis 4 Zimmer)<!--Lage--->:</b> F.-Jost-Str. 8/Breslauer Str.  42, 04299 Leipzig, Stötteritz</td>
-      String object = extractContentOrEmpty( elm, "b").replace( ":", "");
+      final String object = extractContentOrEmpty( elm, "b").replace( ":", "");
       obj.setObjekt( object);
 
-      EKind kind = EKind.fromLabel( object);
+      final EKind kind = EKind.fromLabel( object);
       if( kind == null) log.debug( "Kind not found from: " + object);
       obj.setArt( kind);
 
-      String lage = extractLageOrNull( elm);
+      final String lage = extractLageOrNull( elm);
       obj.setLage( lage);
       //Kernweg 8, 01458 Ottendorf-Okrilla, OT Medingen
       if( lage != null)
       {
-        Matcher m = stadtPattern.matcher( lage);
+        final Matcher m = stadtPattern.matcher( lage);
         if( m.matches())
         {
-          String stadt = m.group( 1).trim();
+          final String stadt = m.group( 1).trim();
           obj.setStadt( stadt);
         }
         else
@@ -158,11 +170,19 @@ public class ZvgObjectParser
     elm = attrToVal.get( "Verkehrswert");
     if( elm != null)
     {
-      Integer verkerhswert = elm.getElementsByTagName( "p").stream()
+      final Integer verkerhswert = elm.getElementsByTagName( "p").stream()
         .map( p -> extractWertOrNull( p.asText()))
         .filter( w -> w != null)
         .max( Integer::compare).orElse( null);
-      if( verkerhswert == null) log.debug( "Verkahrswert not found from: " + elm.getElementsByTagName( "p").toString());
+      if( verkerhswert == null)
+      {
+        if( log.isDebugEnabled())
+        {
+          final List<String> con =
+            elm.getElementsByTagName( "p").stream().map( p -> p.asText()).collect( Collectors.toList());
+          log.debug( "Verkahrswert not found from:\n" + con.toString());
+        }
+      }
       obj.setVerkerhswert( verkerhswert);
     }
 
@@ -171,7 +191,7 @@ public class ZvgObjectParser
     {
       String termin = elm.asText().trim();
       //  Der Termin Mittwoch, 04. Januar 2017, 11:00 Uhr wurde aufgehoben.
-      boolean isAufgehoben = termin.contains( "wurde aufgehoben");
+      final boolean isAufgehoben = termin.contains( "wurde aufgehoben");
       if( isAufgehoben)
       {
         termin = termin.replace( "Der Termin ", "");
@@ -182,7 +202,7 @@ public class ZvgObjectParser
       try
       {
         obj.setTermin( LocalDateTime.parse( termin, germanLongDateTimeFormat));
-      } catch( DateTimeParseException e)
+      } catch( final DateTimeParseException e)
       {
         log.error( e.toString(), e);
       }
@@ -191,7 +211,7 @@ public class ZvgObjectParser
     return obj;
   }
 
-  private void parseZvgId( String link, ZvgObject obj)
+  private void parseZvgId( final String link, final ZvgObject obj)
   {
     if( link == null)
     {
@@ -200,69 +220,88 @@ public class ZvgObjectParser
     }
     try
     {
-      List<NameValuePair> paramsList = URLEncodedUtils.parse( new URI( link), "UTF-8");
+      final List<NameValuePair> paramsList = URLEncodedUtils.parse( new URI( link), "UTF-8");
       //index.php?button=showZvg&amp;zvg_id=29218&amp;land_abk=sn
-      String zvg_id = paramsList.stream().filter( nvp -> "zvg_id".equals( nvp.getName())).map( nvp -> nvp.getValue())
-        .findFirst().orElse( null);
-      ELand land = paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue())
-        .findFirst().map( la -> ELand.fromValue( la)).orElse( null);
+      final String zvg_id =
+        paramsList.stream().filter( nvp -> "zvg_id".equals( nvp.getName())).map( nvp -> nvp.getValue())
+          .findFirst().orElse( null);
+      final ELand land =
+        paramsList.stream().filter( nvp -> "land_abk".equals( nvp.getName())).map( nvp -> nvp.getValue())
+          .findFirst().map( la -> ELand.fromValue( la)).orElse( null);
 
       obj.setId( Long.parseLong( zvg_id));
       obj.setLand( land);
-    } catch( Exception e)
+    } catch( final Exception e)
     {
       log.error( e.toString(), e);
     }
   }
 
-  private Integer extractWertOrNull( String wert)
+  private Integer extractWertOrNull( final String wert)
   {
     if( wert == null || wert.isEmpty()) return null;
 
-    int idxKomma = wert.indexOf( ',');
+    final Matcher m = preisPattern.matcher( wert);
 
-    if( idxKomma == -1) return null;
+    final ArrayList<Integer> werte = new ArrayList<>();
 
-    wert = wert.substring( 0, idxKomma);
+    while( m.find())
+    {
+      final String group = m.group( 1);
+      final Integer wer = extractIntWertOrNull( group);
+      if( wer != null) werte.add( wer);
+    }
+
+    return werte.stream().max( Integer::compare).orElse( null);
+  }
+
+  private Integer extractIntWertOrNull( String wert)
+  {
+    final int idxKomma = wert.indexOf( ',');
+
+    if( idxKomma > 0)
+    {
+      wert = wert.substring( 0, idxKomma);
+    }
     wert = wert.replaceAll( "\\.", "");
 
     try
     {
       return Integer.valueOf( wert);
-    } catch( NumberFormatException nfe)
+    } catch( final NumberFormatException nfe)
     {
       return null;
     }
   }
 
-  private String extractLageOrNull( HtmlElement elm)
+  private String extractLageOrNull( final HtmlElement elm)
   {
-    DomNodeList<HtmlElement> bs = elm.getElementsByTagName( "b");
+    final DomNodeList<HtmlElement> bs = elm.getElementsByTagName( "b");
     if( bs.size() == 0) return null;
 
-    HtmlElement b = bs.get( 0);
+    final HtmlElement b = bs.get( 0);
 
-    DomNode lage = b.getNextSibling();
+    final DomNode lage = b.getNextSibling();
     if( lage != null) return lage.asText().trim();
-    
+
     log.debug( "Lage not found from: " + elm.asXml());
     return null;
   }
 
-  private String extractContentOrEmpty( HtmlElement elm, String tag)
+  private String extractContentOrEmpty( final HtmlElement elm, final String tag)
   {
-    Stream<DomElement> children = StreamSupport.stream( elm.getChildElements().spliterator(), false);
+    final Stream<DomElement> children = StreamSupport.stream( elm.getChildElements().spliterator(), false);
 
-    String content = children.filter( e -> tag.equalsIgnoreCase( e.getTagName()))
+    final String content = children.filter( e -> tag.equalsIgnoreCase( e.getTagName()))
       .map( e -> e.asText().trim())
       .findFirst().orElse( "");
 
     return content;
   }
 
-  private String serachFirstLink( HtmlElement elm)
+  private String serachFirstLink( final HtmlElement elm)
   {
-    String link = elm.getElementsByTagName( "a").stream()
+    final String link = elm.getElementsByTagName( "a").stream()
       .map( a -> a.getAttributeNode( "href"))
       .filter( an -> an != null)
       .map( an -> an.getValue())
@@ -276,13 +315,13 @@ public class ZvgObjectParser
     return link;
   }
 
-  private String htmlToKeyName( HtmlElement elm)
+  private String htmlToKeyName( final HtmlElement elm)
   {
-    DomNodeList<HtmlElement> tds = elm.getElementsByTagName( "td");
+    final DomNodeList<HtmlElement> tds = elm.getElementsByTagName( "td");
     if( tds.size() > 0)
     {
-      String[] names = tds.get( 0).asText().trim().split( " |:");
-      String key = names[0];
+      final String[] names = tds.get( 0).asText().trim().split( " |:");
+      final String key = names[0];
       log.debug( key);
       return key;
     }
@@ -290,32 +329,35 @@ public class ZvgObjectParser
     return null;
   }
 
-  private HtmlElement htmlToValueNode( HtmlElement elm)
+  private HtmlElement htmlToValueNode( final HtmlElement elm)
   {
-    DomNodeList<HtmlElement> tds = elm.getElementsByTagName( "td");
+    final DomNodeList<HtmlElement> tds = elm.getElementsByTagName( "td");
     if( tds.size() < 2) return null;
 
     return tds.get( 1);
   }
 
-  private boolean isSplitter( HtmlElement row)
+  private boolean isSplitter( final HtmlElement row)
   {
     // <tr><td colspan="3"><hr></td></tr>
     if( !"tr".equalsIgnoreCase( row.getTagName())) return false;
 
-    DomNodeList<HtmlElement> tds = row.getElementsByTagName( "td");
+    final DomNodeList<HtmlElement> tds = row.getElementsByTagName( "td");
     if( tds.size() == 0) return false;
-    HtmlElement firstTd = tds.get( 0);
+    final HtmlElement firstTd = tds.get( 0);
 
-    String colspan = firstTd.getAttribute( "colspan");
+    final String colspan = firstTd.getAttribute( "colspan");
     if( !"3".equals( colspan)) return false;
 
     return firstTd.getElementsByTagName( "hr").size() == 1;
   }
 
-  static List<HtmlElement> getChildsByTagName( DomElement domElement, final String tagName)
+  static List<HtmlElement> getChildsByTagName( final DomElement domElement, final String tagName)
   {
-    Stream<DomElement> stream = StreamSupport.stream( domElement.getChildElements().spliterator(), false);
+    if( domElement == null) return Collections.emptyList();
+    if( domElement.getChildElements() == null) return Collections.emptyList();
+
+    final Stream<DomElement> stream = StreamSupport.stream( domElement.getChildElements().spliterator(), false);
 
     return stream
       .filter( elem -> elem.getLocalName().equalsIgnoreCase( tagName))
@@ -324,13 +366,13 @@ public class ZvgObjectParser
       .collect( Collectors.toList());
   }
 
-  static <T> List<List<T>> splitBySeparator( List<T> list, Predicate< ? super T> predicate)
+  static <T> List<List<T>> splitBySeparator( final List<T> list, final Predicate< ? super T> predicate)
   {
     final List<List<T>> finalList = new ArrayList<>();
     int fromIndex = 0;
     int toIndex = 0;
 
-    for( T elem : list)
+    for( final T elem : list)
     {
       if( predicate.test( elem))
       {

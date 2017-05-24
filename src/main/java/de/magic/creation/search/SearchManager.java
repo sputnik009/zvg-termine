@@ -19,18 +19,18 @@ public class SearchManager
 {
   private final Logger         log = LoggerFactory.getLogger( SearchManager.class);
 
-  private SearchManagerWeb     searchManagerWeb;
+  private final SearchManagerWeb     searchManagerWeb;
 
-  private IZvgObjectRepository zvgObjectRepository;
+  private final IZvgObjectRepository zvgObjectRepository;
 
   @Autowired
-  public SearchManager( SearchManagerWeb searchManagerWeb, IZvgObjectRepository zvgObjectRepository)
+  public SearchManager( final SearchManagerWeb searchManagerWeb, final IZvgObjectRepository zvgObjectRepository)
   {
     this.searchManagerWeb = searchManagerWeb;
     this.zvgObjectRepository = zvgObjectRepository;
   }
 
-  public ZvgObject getObject( Long id)
+  public ZvgObject getObject( final Long id)
   {
     return zvgObjectRepository.findOne( id);
   }
@@ -52,20 +52,20 @@ public class SearchManager
   }
 
   @Cacheable(cacheNames = "searchs")
-  public List<ZvgObject> search( SearchSettings settings)
+  public List<ZvgObject> search( final SearchSettings settings)
   {
     log.info( "Search: " + settings);
 
     log.debug( "Search in db");
-    
+
     List<ZvgObject> result;
-    String stadt = settings.getCity();
+    final String stadt = settings.getCity();
 
     if( stadt != null && !stadt.trim().isEmpty())
       result = zvgObjectRepository.findByStadtAndLandAndArtInAndTerminAfterOrderByVerkerhswert( stadt, settings.getLand(), settings.getKinds(), LocalDateTime.now());
     else
       result = zvgObjectRepository.findByLandAndArtInAndTerminAfterOrderByVerkerhswert( settings.getLand(), settings.getKinds(), LocalDateTime.now());
-    
+
     log.debug( "db results: " + result.size());
 
     if( result.size() > 0) return result;
