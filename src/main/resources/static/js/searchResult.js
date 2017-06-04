@@ -27,24 +27,25 @@ $('#resultTable tbody tr').each(function() {
 	var p = "<p>" + $(this).children("td:nth-child(4)").html() + " €</p>";
 
 	var circle = new L.circleMarker([ lat, lon ], {
-		color : '#79b7e7',
-		fillColor : '#79b7e7',
+		color : '#2e6e9e',
+		fillColor : '#2e6e9e',
 		fillOpacity : 0.5,
 		radius : 10
 	}).addTo(myMap);
 	circle.bindTooltip(ol + p);
+	
 	var row = $(this);
 	circle.on('mouseover', function() {
 		circle.setStyle({
-			color : '#2e6e9e',
-			fillColor : '#2e6e9e'
+			color : '#79b7e7',
+			fillColor : '#79b7e7'
 		});
 		row.addClass("highlight");
 	});
 	circle.on('mouseout', function() {
 		circle.setStyle({
-			color : '#79b7e7',
-			fillColor : '#79b7e7'
+			color : '#2e6e9e',
+			fillColor : '#2e6e9e'
 		});
 		row.removeClass("highlight");
 	});
@@ -52,12 +53,14 @@ $('#resultTable tbody tr').each(function() {
 	$(this).hover(function() {
 		$(this).addClass("highlight");
 		circle.setStyle({
-			color : '#2e6e9e'
+			color : '#79b7e7',
+			fillColor : '#79b7e7'
 		});
 	}, function() {
 		$(this).removeClass("highlight");
 		circle.setStyle({
-			color : '#79b7e7'
+			color : '#2e6e9e',
+			fillColor : '#2e6e9e'
 		});
 	});
 });
